@@ -1,0 +1,24 @@
+update_data:
+  description: 更新数据
+  fields:
+    test1:
+      description: 测试1
+      example: a
+      selector:
+        text:
+    test2:
+      description: 测试2
+      example: 1
+      selector:
+        text:
+    test3:
+      description: 下拉
+      selector:
+        select:
+          options:
+            - label: Mihome API
+              value: xiaomiio
+            - label: Xiaoai API
+              value: micoapi
+            - label: i.mi.com
+              value: i.mi.com

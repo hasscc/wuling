@@ -1,0 +1,85 @@
+{
+  "config": {
+    "flow_title": "配置集成",
+    "step": {
+      "user": {
+        "title": "开始配置",
+        "description": "",
+        "data": {
+          "access_token": "登陆令牌"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "集成选项",
+        "description": "{tip}",
+        "data": {
+          "access_token": "登陆令牌"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery": {
+        "name": "电量"
+      },
+      "total_mileage": {
+        "name": "总里程"
+      },
+      "left_mileage": {
+        "name": "续航"
+      },
+      "left_mileage_oil": {
+        "name": "油续航"
+      },
+      "battery_temp": {
+        "name": "电池温度"
+      },
+      "battery_voltage": {
+        "name": "电瓶电压"
+      },
+      "battery_health": {
+        "name": "电池健康"
+      },
+      "battery_status": {
+        "name": "电池状态"
+      },
+      "door_status": {
+        "name": "车门状态"
+      },
+      "door_locked": {
+        "name": "锁车状态"
+      },
+      "window_status": {
+        "name": "车窗状态"
+      },
+      "key_status": {
+        "name": "钥匙状态"
+      },
+      "gear_status": {
+        "name": "档位"
+      }
+    },
+    "binary_sensor": {
+      "door_status": {
+        "name": "车门状态"
+      },
+      "door_locked": {
+        "name": "锁车状态"
+      },
+      "window_status": {
+        "name": "车窗状态"
+      },
+      "charging": {
+        "name": "充电状态"
+      }
+    },
+    "device_tracker": {
+      "location": "位置"
+    }
+  }
+}
