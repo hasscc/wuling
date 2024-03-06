@@ -124,7 +124,7 @@ class StateCoordinator(DataUpdateCoordinator):
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.VOLTAGE,
                 'unit_of_measurement': UnitOfElectricPotential.VOLT,
-            }),
+            }),  #动力电池电压
             NumberSensorConv('battery_health', prop='carStatus.batHealth').with_option({
                 'icon': 'mdi:battery-heart-variant',
                 'state_class': SensorStateClass.MEASUREMENT,
