@@ -57,7 +57,7 @@
       "door_locked": {
         "name": "锁车状态"
       },
-      "tail_door_locked": {
+      "tail_door_status": {
         "name": "尾门锁状态"
       },
       "window_status": {
@@ -77,7 +77,7 @@
       "door_locked": {
         "name": "锁车状态"
       },
-      "tail_door_locked": {
+      "tail_door_status": {
         "name": "尾门锁状态"
       },
       "window_status": {
