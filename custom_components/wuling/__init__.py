@@ -87,21 +87,25 @@ class StateCoordinator(DataUpdateCoordinator):
                 'unit_of_measurement': PERCENTAGE,
             }),
             NumberSensorConv('total_mileage', prop='carStatus.mileage').with_option({
+                'icon': 'mdi:counter',
                 'state_class': SensorStateClass.TOTAL,
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
             NumberSensorConv('left_mileage', prop='carStatus.leftMileage').with_option({
+                'icon': 'mdi:lightning-bolt',
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
             NumberSensorConv('left_mileage_oil', prop='carStatus.oilLeftMileage').with_option({
+                'icon': 'mdi:water',
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
             NumberSensorConv('oil_level', prop='carStatus.leftFuel').with_option({
+                'icon': 'mdi:water-percent',
                 'state_class': SensorStateClass.MEASUREMENT,
                 'unit_of_measurement': PERCENTAGE,
             }),
@@ -111,16 +115,18 @@ class StateCoordinator(DataUpdateCoordinator):
                 'unit_of_measurement': UnitOfTemperature.CELSIUS,
             }),
             NumberSensorConv('battery_voltage', prop='carStatus.lowBatVol').with_option({
+                'icon': 'mdi:car-battery',
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.VOLTAGE,
                 'unit_of_measurement': UnitOfElectricPotential.VOLT,
             }),
             NumberSensorConv('battery_health', prop='carStatus.batHealth').with_option({
+                'icon': 'mdi:battery-heart-variant',
                 'state_class': SensorStateClass.MEASUREMENT,
                 'unit_of_measurement': PERCENTAGE,
             }),
             SensorConv('battery_status', prop='carStatus.batteryStatus').with_option({
-                'icon': 'mdi:battery-check-outline',
+                'icon': 'mdi:battery-unknown',
             }),
 
             BinarySensorConv('door_status', prop='carStatus.doorOpenStatus').with_option({
@@ -132,7 +138,6 @@ class StateCoordinator(DataUpdateCoordinator):
             BinarySensorConv('door3_status', prop='carStatus.door3OpenStatus', parent='door_status'),
             BinarySensorConv('door4_status', prop='carStatus.door4OpenStatus', parent='door_status'),
             BinarySensorConv('tail_door_status', prop='carStatus.tailDoorOpenStatus', parent='door_status'),
-
             BinarySensorConv('door_locked', prop='carStatus.doorLockStatus').with_option({
                 'icon': 'mdi:car-door-lock',
                 'device_class': BinarySensorDeviceClass.LOCK,
@@ -142,7 +147,6 @@ class StateCoordinator(DataUpdateCoordinator):
             BinarySensorConv('door3_locked', prop='carStatus.door3LockStatus', parent='door_locked'),
             BinarySensorConv('door4_locked', prop='carStatus.door4LockStatus', parent='door_locked'),
             BinarySensorConv('tail_door_locked', prop='carStatus.tailDoorLockStatus', parent='door_locked'),
-
             BinarySensorConv('window_status', prop='carStatus.windowOpenStatus').with_option({
                 'icon': 'mdi:dock-window',
                 'device_class': BinarySensorDeviceClass.WINDOW,
@@ -160,14 +164,20 @@ class StateCoordinator(DataUpdateCoordinator):
                 '1': '已连接',
                 '2': '已启动',
             }).with_option({
-                'icon': 'mdi:car-key',
+                'icon': 'mdi:key',
             }),
             MapSensorConv('gear_status', prop='carStatus.autoGearStatus', map={
                 '10': 'P',
                 '12': 'D',
             }).with_option({
-                'icon': 'mdi:cog-outline',
+                'icon': 'mdi:car-shift-pattern',
             }),
+            MapSensorConv('ac_status', prop='carStatus.acStatus',map={
+                '0': '关',
+                '1': '开',
+            }).with_option({
+                'icon': 'mdi:air-conditioner',
+            }),,
 
             Converter('location', Platform.DEVICE_TRACKER, prop='carStatus.location').with_option({
                 'icon': 'mdi:car',
