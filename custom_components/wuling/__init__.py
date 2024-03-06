@@ -11,6 +11,8 @@ from homeassistant.core import HomeAssistant, State, ServiceCall, SupportsRespon
 from homeassistant.const import (
     Platform,
     CONF_ACCESS_TOKEN,
+    CONF_CLIENT_ID,
+    CONF_CLIENT_SECRET,
     PERCENTAGE,
     UnitOfLength,
     UnitOfTemperature,
@@ -41,8 +43,6 @@ def generate_random_letters(length):
     return ''.join(random.choice(letters) for _ in range(length))
 
 sgmwnonce = generate_random_letters(10)
-sgmwclientid = '2019041810222516127'
-sgmwclientsecret = 'c5ad2a4290faa3df39683865c2e10310'
 sgmwappcode = 'sgmw_llb'
 sgmwappversion = '1656'
 sgmwsystem = 'android'
@@ -200,6 +200,14 @@ class StateCoordinator(DataUpdateCoordinator):
         return self.entry.data.get(CONF_ACCESS_TOKEN, '')
 
     @property
+    def client_id(self):
+        return self.entry.data.get(CONF_CLIENT_ID, '')
+
+    @property
+    def client_secret(self):
+        return self.entry.data.get(CONF_CLIENT_SECRET, '')
+
+    @property
     def car_info(self):
         return self.data.get('carInfo') or {}
 
@@ -252,8 +260,8 @@ class StateCoordinator(DataUpdateCoordinator):
             'sgmwaccesstoken': self.access_token,
             'sgmwtimestamp': str(timestamp),
             'sgmwnonce': sgmwnonce,
-            'sgmwclientid': sgmwclientid,
-            'sgmwclientsecret': sgmwclientsecret,
+            'sgmwclientid': self.client_id,
+            'sgmwclientsecret': self.client_secret,
             'sgmwappcode': sgmwappcode,
             'sgmwappversion': sgmwappversion,
             'sgmwsystem': sgmwsystem,
@@ -280,8 +288,8 @@ class StateCoordinator(DataUpdateCoordinator):
         sign_str = (self.access_token +
                     str(timestamp) +
                     nonce +
-                    sgmwclientid +
-                    sgmwclientsecret +
+                    self.client_id +
+                    self.client_secret +
                     sgmwappcode +
                     sgmwappversion +
                     sgmwsystem +
