@@ -45,6 +45,9 @@
       "battery_voltage": {
         "name": "电瓶电压"
       },
+      "Power_battery_voltage": {
+        "name": "动力电池电压"
+      },
       "battery_health": {
         "name": "电池健康"
       },
