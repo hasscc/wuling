@@ -25,16 +25,19 @@
   "entity": {
     "sensor": {
       "battery": {
-        "name": "电量"
+        "name": "剩余电量"
       },
       "total_mileage": {
         "name": "总里程"
       },
       "left_mileage": {
-        "name": "续航"
+        "name": "纯电续航"
       },
       "left_mileage_oil": {
-        "name": "油续航"
+        "name": "燃油续航"
+      },
+      "oil_level": {
+        "name": "剩余油量"
       },
       "battery_temp": {
         "name": "电池温度"
@@ -54,6 +57,9 @@
       "door_locked": {
         "name": "锁车状态"
       },
+      "tail_door_locked": {
+        "name": "尾门锁状态"
+      },
       "window_status": {
         "name": "车窗状态"
       },
@@ -71,11 +77,17 @@
       "door_locked": {
         "name": "锁车状态"
       },
+      "tail_door_locked": {
+        "name": "尾门锁状态"
+      },
       "window_status": {
         "name": "车窗状态"
       },
       "charging": {
         "name": "充电状态"
+      },
+      "ac_status": {
+        "name": "空调状态"
       }
     },
     "device_tracker": {
