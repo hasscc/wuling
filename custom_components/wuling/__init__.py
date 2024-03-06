@@ -137,7 +137,10 @@ class StateCoordinator(DataUpdateCoordinator):
             BinarySensorConv('door2_status', prop='carStatus.door2OpenStatus', parent='door_status'),
             BinarySensorConv('door3_status', prop='carStatus.door3OpenStatus', parent='door_status'),
             BinarySensorConv('door4_status', prop='carStatus.door4OpenStatus', parent='door_status'),
-            BinarySensorConv('tail_door_status', prop='carStatus.tailDoorOpenStatus', parent='door_status'),
+            BinarySensorConv('tail_door_status', prop='carStatus.tailDoorOpenStatus').with_option({
+                'icon': 'mdi:car-door-lock',
+                'device_class': BinarySensorDeviceClass.LOCK,
+            }),
             BinarySensorConv('door_locked', prop='carStatus.doorLockStatus').with_option({
                 'icon': 'mdi:car-door-lock',
                 'device_class': BinarySensorDeviceClass.LOCK,
@@ -146,7 +149,6 @@ class StateCoordinator(DataUpdateCoordinator):
             BinarySensorConv('door2_locked', prop='carStatus.door2LockStatus', parent='door_locked'),
             BinarySensorConv('door3_locked', prop='carStatus.door3LockStatus', parent='door_locked'),
             BinarySensorConv('door4_locked', prop='carStatus.door4LockStatus', parent='door_locked'),
-            BinarySensorConv('tail_door_locked', prop='carStatus.tailDoorLockStatus', parent='door_locked'),
             BinarySensorConv('window_status', prop='carStatus.windowOpenStatus').with_option({
                 'icon': 'mdi:dock-window',
                 'device_class': BinarySensorDeviceClass.WINDOW,
@@ -177,7 +179,7 @@ class StateCoordinator(DataUpdateCoordinator):
                 '1': '开',
             }).with_option({
                 'icon': 'mdi:air-conditioner',
-            }),,
+            }),
 
             Converter('location', Platform.DEVICE_TRACKER, prop='carStatus.location').with_option({
                 'icon': 'mdi:car',
