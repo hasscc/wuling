@@ -1,6 +1,6 @@
 import voluptuous as vol
 from homeassistant import config_entries
-from . import DOMAIN, TITLE, CONF_ACCESS_TOKEN, CONF_CLIENT_ID, CONF_CLIENT_SECRET
+from . import DOMAIN, TITLE, CONF_ACCESS_TOKEN, CONF_CLIENT_ID, CONF_CLIENT_SECRET, callback
 
 
 def get_schemas(defaults):
@@ -12,6 +12,12 @@ def get_schemas(defaults):
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(entry: config_entries.ConfigEntry):
+        return OptionsFlowHandler(entry)
 
     async def async_step_user(self, user_input):
         if user_input is None:

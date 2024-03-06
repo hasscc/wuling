@@ -49,6 +49,18 @@ class Converter:
         return self
 
 @dataclass
+class BoolConv(Converter):
+    reverse: bool = None
+
+    def decode(self, device: "Client", payload: dict, value: int):
+        val = (not value) if self.reverse else bool(value)
+        payload[self.attr] = val
+
+    def encode(self, device: "Client", payload: dict, value: bool):
+        val = (not value) if self.reverse else value
+        super().encode(device, payload, int(val))
+
+@dataclass
 class MapConv(Converter):
     map: dict = None
     default: Any = None

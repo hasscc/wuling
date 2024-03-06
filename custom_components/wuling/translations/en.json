@@ -94,6 +94,9 @@
         "name": "空调状态"
       }
     },
+    "door_lock": {
+      "location": "车锁"
+    },
     "device_tracker": {
       "location": "位置"
     }

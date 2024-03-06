@@ -31,8 +31,10 @@ TITLE = '五菱汽车'
 API_BASE = 'https://openapi.baojun.net/junApi/sgmw'
 
 SUPPORTED_PLATFORMS = [
-    Platform.SENSOR,
     Platform.BINARY_SENSOR,
+    Platform.SENSOR,
+    Platform.SWITCH,
+    Platform.LOCK,
     Platform.DEVICE_TRACKER,
 ]
 _LOGGER = logging.getLogger(__name__)
@@ -129,6 +131,14 @@ class StateCoordinator(DataUpdateCoordinator):
                 'icon': 'mdi:battery-unknown',
             }),
 
+            BoolConv('door_lock', Platform.LOCK, prop='carStatus.doorLockStatus', reverse=True).with_option({
+                'icon': 'mdi:car-door-lock',
+            }),
+            BinarySensorConv('door1_locked', prop='carStatus.door1LockStatus', parent='door_lock'),
+            BinarySensorConv('door2_locked', prop='carStatus.door2LockStatus', parent='door_lock'),
+            BinarySensorConv('door3_locked', prop='carStatus.door3LockStatus', parent='door_lock'),
+            BinarySensorConv('door4_locked', prop='carStatus.door4LockStatus', parent='door_lock'),
+
             BinarySensorConv('door_status', prop='carStatus.doorOpenStatus').with_option({
                 'icon': 'mdi:car-door',
                 'device_class': BinarySensorDeviceClass.DOOR,
@@ -141,14 +151,7 @@ class StateCoordinator(DataUpdateCoordinator):
                 'icon': 'mdi:car-door-lock',
                 'device_class': BinarySensorDeviceClass.LOCK,
             }),
-            BinarySensorConv('door_locked', prop='carStatus.doorLockStatus').with_option({
-                'icon': 'mdi:car-door-lock',
-                'device_class': BinarySensorDeviceClass.LOCK,
-            }),
-            BinarySensorConv('door1_locked', prop='carStatus.door1LockStatus', parent='door_locked'),
-            BinarySensorConv('door2_locked', prop='carStatus.door2LockStatus', parent='door_locked'),
-            BinarySensorConv('door3_locked', prop='carStatus.door3LockStatus', parent='door_locked'),
-            BinarySensorConv('door4_locked', prop='carStatus.door4LockStatus', parent='door_locked'),
+
             BinarySensorConv('window_status', prop='carStatus.windowOpenStatus').with_option({
                 'icon': 'mdi:dock-window',
                 'device_class': BinarySensorDeviceClass.WINDOW,
@@ -174,14 +177,14 @@ class StateCoordinator(DataUpdateCoordinator):
             }).with_option({
                 'icon': 'mdi:car-shift-pattern',
             }),
-            MapSensorConv('ac_status', prop='carStatus.acStatus',map={
+            MapSensorConv('ac_status', prop='carStatus.acStatus', map={
                 '0': '关',
                 '1': '开',
             }).with_option({
                 'icon': 'mdi:air-conditioner',
             }),
 
-            Converter('location', Platform.DEVICE_TRACKER, prop='carStatus.location').with_option({
+            Converter('location', Platform.DEVICE_TRACKER).with_option({
                 'icon': 'mdi:car',
             }),
             NumberSensorConv('latitude', prop='carStatus.latitude', parent='location', precision=6),
@@ -242,8 +245,15 @@ class StateCoordinator(DataUpdateCoordinator):
         return self.data
 
     async def _async_update_data(self):
+        result = await self.async_request('userCarRelation/queryDefaultCarStatus')
+        data = result.get('data') or {}
+        return data
+
+    async def async_request(self, api: str, **kwargs):
         timestamp = int(time.time() * 1000)
-        headers = {
+        kwargs.setdefault('url', f'{API_BASE}/{api.lstrip("/")}')
+        kwargs.setdefault('method', 'POST')
+        kwargs['headers'] = {
             'Accept': 'application/json',
             'Content-Type': 'application/json; charset=UTF-8',
             'User-Agent': 'okhttp/4.9.0',
@@ -267,21 +277,19 @@ class StateCoordinator(DataUpdateCoordinator):
             'sgmwsystem': sgmwsystem,
             'sgmwsystemversion': sgmwsystemversion,
             'sgmwsignature': self.get_sign(timestamp, sgmwnonce),
+            **kwargs.get('headers', {}),
         }
         try:
             res = await async_get_clientsession(self.hass).request(
-                method='POST',
-                url=f'{API_BASE}/userCarRelation/queryDefaultCarStatus',
-                headers=headers,
+                **kwargs,
                 timeout=aiohttp.ClientTimeout(total=30),
             )
         except Exception as err:
-            _LOGGER.error('Request error: %s', err)
+            _LOGGER.error('Request %s error: %s', api, err)
             return {}
         result = await res.json() or {}
-        data = result.get('data') or {}
-        _LOGGER.info('Update data: %s', result)
-        return data
+        _LOGGER.warning('Request %s result: %s', api, [result, kwargs])
+        return result
 
     def get_sign(self, timestamp, nonce):
         # 计算签名
@@ -362,6 +370,10 @@ class XEntity(CoordinatorEntity):
         self._vars = {}
         self.subscribed_attrs = coordinator.subscribe_attrs(conv)
         coordinator.entities[conv.attr] = self
+
+    @property
+    def vin(self):
+        return self.coordinator.vin
 
     async def async_added_to_hass(self):
         """Run when entity about to be added to hass."""
