@@ -131,7 +131,7 @@ class StateCoordinator(DataUpdateCoordinator):
                 'icon': 'mdi:battery-unknown',
             }),
 
-            BoolConv('door_lock', Platform.LOCK, prop='carStatus.doorLockStatus', reverse=True).with_option({
+            BoolConv('door_lock', Platform.LOCK, prop='carStatus.doorLockStatus').with_option({
                 'icon': 'mdi:car-door-lock',
             }),
             BinarySensorConv('door1_locked', prop='carStatus.door1LockStatus', parent='door_lock'),
@@ -288,7 +288,7 @@ class StateCoordinator(DataUpdateCoordinator):
             _LOGGER.error('Request %s error: %s', api, err)
             return {}
         result = await res.json() or {}
-        _LOGGER.warning('Request %s result: %s', api, [result, kwargs])
+        _LOGGER.debug('Request %s result: %s', api, [result, kwargs])
         return result
 
     def get_sign(self, timestamp, nonce):
