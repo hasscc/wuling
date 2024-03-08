@@ -53,7 +53,10 @@ class BoolConv(Converter):
     reverse: bool = None
 
     def decode(self, device: "Client", payload: dict, value: int):
-        val = (not value) if self.reverse else bool(value)
+        val = True if value else False
+        if value in ['0', 'no', 'off', 'false']:
+            val = False
+        val = (not val) if self.reverse else bool(val)
         payload[self.attr] = val
 
     def encode(self, device: "Client", payload: dict, value: bool):
@@ -77,14 +80,8 @@ class SensorConv(Converter):
     domain: Optional[str] = 'sensor'
 
 @dataclass
-class BinarySensorConv(Converter):
+class BinarySensorConv(BoolConv):
     domain: Optional[str] = 'binary_sensor'
-
-    def decode(self, client: "Client", payload: dict, value: Any):
-        val = True if value else False
-        if value in ['0', 'off', 'false']:
-            val = False
-        payload[self.attr] = val
 
 @dataclass
 class NumberSensorConv(SensorConv):
