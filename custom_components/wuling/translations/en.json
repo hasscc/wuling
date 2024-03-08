@@ -4,9 +4,11 @@
     "step": {
       "user": {
         "title": "开始配置",
-        "description": "",
+        "description": "{tip}",
         "data": {
-          "access_token": "登陆令牌"
+          "access_token": "登陆令牌",
+          "client_id": "client_id",
+          "client_secret": "client_secret"
         }
       }
     }
@@ -17,7 +19,9 @@
         "title": "集成选项",
         "description": "{tip}",
         "data": {
-          "access_token": "登陆令牌"
+          "access_token": "登陆令牌",
+          "client_id": "client_id",
+          "client_secret": "client_secret"
         }
       }
     }
@@ -92,6 +96,9 @@
       "ac_status": {
         "name": "空调状态"
       }
+    },
+    "door_lock": {
+      "location": "车锁"
     },
     "device_tracker": {
       "location": "位置"
