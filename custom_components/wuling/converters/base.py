@@ -97,4 +97,4 @@ class NumberSensorConv(SensorConv):
 
 @dataclass
 class MapSensorConv(MapConv, SensorConv):
-    pass
+    domain: Optional[str] = 'sensor'

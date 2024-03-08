@@ -35,6 +35,7 @@ SUPPORTED_PLATFORMS = [
     Platform.SENSOR,
     Platform.SWITCH,
     Platform.LOCK,
+    Platform.CLIMATE,
     Platform.DEVICE_TRACKER,
 ]
 _LOGGER = logging.getLogger(__name__)
@@ -181,12 +182,16 @@ class StateCoordinator(DataUpdateCoordinator):
             }).with_option({
                 'icon': 'mdi:car-shift-pattern',
             }),
-            MapSensorConv('ac_status', prop='carStatus.acStatus', map={
-                '0': '关',
-                '1': '开',
+
+            MapConv('ac', domain=Platform.CLIMATE, prop='carStatus.acStatus', map={
+                '0': 'off',
+                '1': 'cool',
+                '2': 'heat',
             }).with_option({
                 'icon': 'mdi:air-conditioner',
             }),
+            NumberSensorConv('current_temperature', prop='carStatus.invActTemp', parent='ac'),
+            NumberSensorConv('target_temperature', prop='carStatus.accCntTemp', parent='ac'),
 
             Converter('location', Platform.DEVICE_TRACKER).with_option({
                 'icon': 'mdi:car',
@@ -292,7 +297,7 @@ class StateCoordinator(DataUpdateCoordinator):
             _LOGGER.error('Request %s error: %s', api, err)
             return {}
         result = await res.json() or {}
-        _LOGGER.debug('Request %s result: %s', api, [result, kwargs])
+        _LOGGER.warning('Request %s result: %s', api, [result, kwargs])
         return result
 
     def get_sign(self, timestamp, nonce):

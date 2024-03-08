@@ -92,10 +92,19 @@
       }
     },
     "lock": {
-      "door_lock": "车锁"
+      "door_lock": {
+        "name": "车锁"
+      }
+    },
+    "climate": {
+      "ac": {
+        "name": "空调"
+      }
     },
     "device_tracker": {
-      "location": "位置"
+      "location": {
+        "name": "位置"
+      }
     }
   }
 }
