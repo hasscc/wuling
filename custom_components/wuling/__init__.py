@@ -116,13 +116,7 @@ class StateCoordinator(DataUpdateCoordinator):
                 'device_class': SensorDeviceClass.TEMPERATURE,
                 'unit_of_measurement': UnitOfTemperature.CELSIUS,
             }),
-            NumberSensorConv('battery_voltage', prop='carStatus.lowBatVol').with_option({
-                'icon': 'mdi:car-battery',
-                'state_class': SensorStateClass.MEASUREMENT,
-                'device_class': SensorDeviceClass.VOLTAGE,
-                'unit_of_measurement': UnitOfElectricPotential.VOLT,
-            }),
-            NumberSensorConv('Power_battery_voltage', prop='carStatus.voltage').with_option({
+            NumberSensorConv('battery_voltage', prop='carStatus.voltage').with_option({
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.VOLTAGE,
                 'unit_of_measurement': UnitOfElectricPotential.VOLT,
@@ -134,6 +128,11 @@ class StateCoordinator(DataUpdateCoordinator):
             }),
             SensorConv('battery_status', prop='carStatus.batteryStatus').with_option({
                 'icon': 'mdi:battery-unknown',
+            }),
+            NumberSensorConv('small_battery_voltage', prop='carStatus.lowBatVol').with_option({
+                'state_class': SensorStateClass.MEASUREMENT,
+                'device_class': SensorDeviceClass.VOLTAGE,
+                'unit_of_measurement': UnitOfElectricPotential.VOLT,
             }),
 
             BoolConv('door_lock', Platform.LOCK, prop='carStatus.doorLockStatus').with_option({

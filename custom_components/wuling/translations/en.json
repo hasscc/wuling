@@ -47,9 +47,6 @@
         "name": "电池温度"
       },
       "battery_voltage": {
-        "name": "电瓶电压"
-      },
-      "Power_battery_voltage": {
         "name": "电池电压"
       },
       "battery_health": {
@@ -58,11 +55,11 @@
       "battery_status": {
         "name": "电池状态"
       },
+      "small_battery_voltage": {
+        "name": "电瓶电压"
+      },
       "door_status": {
         "name": "车门状态"
-      },
-      "door_locked": {
-        "name": "锁车状态"
       },
       "tail_door_status": {
         "name": "尾门锁状态"
@@ -81,9 +78,6 @@
       "door_status": {
         "name": "车门状态"
       },
-      "door_locked": {
-        "name": "锁车状态"
-      },
       "tail_door_status": {
         "name": "尾门锁状态"
       },
@@ -97,8 +91,8 @@
         "name": "空调状态"
       }
     },
-    "door_lock": {
-      "location": "车锁"
+    "lock": {
+      "door_lock": "车锁"
     },
     "device_tracker": {
       "location": "位置"
