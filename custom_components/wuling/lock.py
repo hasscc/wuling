@@ -37,9 +37,9 @@ class DoorLockEntity(LockEntity):
         """Turn the entity on."""
         await self.coordinator.async_request('car/control/doorLock', json={
             'vin': self.vin,
-            'status': kwargs.get('status', 0),
+            'status': kwargs.get('status', 1),
         })
 
     async def async_unlock(self, **kwargs) -> None:
         """Turn the entity off."""
-        await self.async_lock(status=1)
+        await self.async_lock(status=0)
