@@ -4,6 +4,7 @@ import voluptuous as vol
 from datetime import timedelta
 import hashlib
 import time
+import json
 import random
 import string
 
@@ -296,7 +297,12 @@ class StateCoordinator(DataUpdateCoordinator):
         except Exception as err:
             _LOGGER.error('Request %s error: %s', api, err)
             return {}
-        result = await res.json() or {}
+        text = await res.text() or ''
+        try:
+            result = json.loads(text) or {}
+        except (TypeError, ValueError) as exc:
+            _LOGGER.error('Response from %s error: %s', api, [exc, text])
+            return {}
         _LOGGER.debug('Request %s result: %s', api, [result, kwargs])
         return result
 
