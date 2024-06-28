@@ -23,6 +23,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.exceptions import IntegrationError
 
 from .converters.base import *
 
@@ -32,6 +33,7 @@ TITLE = '五菱汽车'
 API_BASE = 'https://openapi.baojun.net/junApi/sgmw'
 
 SUPPORTED_PLATFORMS = [
+    Platform.BUTTON,
     Platform.BINARY_SENSOR,
     Platform.SENSOR,
     Platform.SWITCH,
@@ -58,6 +60,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data[entry.entry_id].setdefault('entities', {})
     coordinator = StateCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
+    await coordinator.check_auth()
     hass.data[entry.entry_id]['coordinator'] = coordinator
 
     hass.services.async_register(
@@ -80,6 +83,7 @@ class StateCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=60),
         )
         self.entry = entry
+        self.extra = {}
         self.entities = {}
 
         from homeassistant.components.sensor import SensorStateClass, SensorDeviceClass
@@ -206,6 +210,9 @@ class StateCoordinator(DataUpdateCoordinator):
             SensorConv('color', prop='carInfo.colorName', parent='location'),
             SensorConv('entity_picture', prop='carInfo.image', parent='location'),
             SensorConv('collect_time', prop='carStatus.collectTime', parent='location'),
+            ButtonConv('auth_start', press='async_auth_start').with_option({
+                'icon': 'mdi:engine',
+            }),
         ]
 
     @property
@@ -254,8 +261,22 @@ class StateCoordinator(DataUpdateCoordinator):
         await self.async_request_refresh()
         return self.data
 
-    async def _async_update_data(self):
+    async def check_auth(self):
+        code = self.extra.get('errorCode')
+        if code == '500009':
+            msg = self.extra.get('errorMessage') or '登陆失效'
+            raise IntegrationError(msg)
+
+    async def _async_update_data(self, check_auth=False):
         result = await self.async_request('userCarRelation/queryDefaultCarStatus')
+        data = result.pop('data', None) or {}
+        self.extra = result
+        return data
+
+    async def async_auth_start(self):
+        result = await self.async_request('car/control/ignition/authorize', data={
+            'vin': self.vin,
+        })
         data = result.get('data') or {}
         return data
 

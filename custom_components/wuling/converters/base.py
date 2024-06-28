@@ -98,3 +98,15 @@ class NumberSensorConv(SensorConv):
 @dataclass
 class MapSensorConv(MapConv, SensorConv):
     domain: Optional[str] = 'sensor'
+
+@dataclass
+class ButtonConv(Converter):
+    domain: Optional[str] = 'button'
+    press: Optional[str] = ''
+
+    def encode(self, client: "Client", payload: dict, value: Any):
+        async def press(*args, **kwargs):
+            if self.press and hasattr(client, self.press):
+                return await getattr(client, self.press)()
+            return False
+        return press

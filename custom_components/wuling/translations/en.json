@@ -27,6 +27,11 @@
     }
   },
   "entity": {
+    "button": {
+      "auth_start": {
+        "name": "远程启动"
+      }
+    },
     "sensor": {
       "battery": {
         "name": "剩余电量"
