@@ -267,7 +267,7 @@ class StateCoordinator(DataUpdateCoordinator):
             msg = self.extra.get('errorMessage') or '登陆失效'
             raise IntegrationError(msg)
 
-    async def _async_update_data(self, check_auth=False):
+    async def _async_update_data(self):
         result = await self.async_request('userCarRelation/queryDefaultCarStatus')
         data = result.pop('data', None) or {}
         self.extra = result
