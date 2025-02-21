@@ -45,6 +45,9 @@
       "left_mileage_oil": {
         "name": "燃油续航"
       },
+      "total_hev_mileage": {
+        "name": "混动里程"
+      },
       "oil_level": {
         "name": "剩余油量"
       },

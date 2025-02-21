@@ -112,6 +112,12 @@ class StateCoordinator(DataUpdateCoordinator):
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
+            NumberSensorConv('total_hev_mileage', prop='carStatus.hybridMileage').with_option({
+                'icon': 'mdi:water',
+                'state_class': SensorStateClass.MEASUREMENT,
+                'device_class': SensorDeviceClass.DISTANCE,
+                'unit_of_measurement': UnitOfLength.KILOMETERS,
+            }),
             NumberSensorConv('oil_level', prop='carStatus.leftFuel').with_option({
                 'icon': 'mdi:water-percent',
                 'state_class': SensorStateClass.MEASUREMENT,
