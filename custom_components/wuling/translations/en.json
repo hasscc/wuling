@@ -51,6 +51,10 @@
       "oil_level": {
         "name": "剩余油量"
       },
+      "avgFuel": {
+        "name": "平均油耗",
+        "unit": "L/100km"
+      },
       "battery_temp": {
         "name": "电池温度"
       },
