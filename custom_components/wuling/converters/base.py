@@ -85,9 +85,7 @@ class SensorConv(Converter):
 class BinarySensorConv(BoolConv):
     domain: Optional[str] = 'binary_sensor'
 
-@dataclass
 class ProblemConv(BinarySensorConv):
-
     def __post_init__(self):
         self.option = {
             'device_class': BinarySensorDeviceClass.PROBLEM,
