@@ -87,17 +87,13 @@ class BinarySensorConv(BoolConv):
 
 @dataclass
 class ProblemConv(BinarySensorConv):
-    normal: Optional[Any] = '1'
 
     def __post_init__(self):
-        if self.option is None:
-            self.option = {
-                'device_class': BinarySensorDeviceClass.PROBLEM,
-                'entity_category': EntityCategory.DIAGNOSTIC,
-            }
-
-    def decode(self, client: "Client", payload: dict, value: Any):
-        payload[self.attr] = str(value) == self.normal
+        self.option = {
+            'device_class': BinarySensorDeviceClass.PROBLEM,
+            'entity_category': EntityCategory.DIAGNOSTIC,
+            **(self.option or {}),
+        }
 
 @dataclass
 class NumberSensorConv(SensorConv):

@@ -232,44 +232,44 @@ class StateCoordinator(DataUpdateCoordinator):
             ButtonConv('auth_start', press='async_auth_start').with_option({
                 'icon': 'mdi:engine',
             }),
-            ProblemConv('engine_power', prop='checkStatus.enginePow').with_option({
+            ProblemConv('engine_power', prop='checkStatus.enginePow', reverse=True).with_option({
                 'icon': 'mdi:turbine',
             }),
-            ProblemConv('engine_temp', prop='checkStatus.engineTemp').with_option({
-                'icon': 'mdi:coolant-temperatur',
+            ProblemConv('engine_temp', prop='checkStatus.engineTemp', reverse=True).with_option({
+                'icon': 'mdi:coolant-temperature',
             }),
-            ProblemConv('abs', prop='checkStatus.absio', normal=0).with_option({
-                'icon': 'mdi:car-brake-anti-lock',
+            ProblemConv('abs', prop='checkStatus.absio').with_option({
+                'icon': 'mdi:car-brake-abs',
             }),
-            ProblemConv('power_steering', prop='checkStatus.pwrStrIo', normal=0).with_option({
-                'icon': 'mdi:steering-wheel',
+            ProblemConv('power_steering', prop='checkStatus.pwrStrIo').with_option({
+                'icon': 'mdi:steering',
             }),
             SensorConv('tire_temp', prop='tirePressure.tirTemp').with_option({
-                'icon': 'mdi:car-tire',
+                'icon': 'mdi:tire',
                 'device_class': SensorDeviceClass.TEMPERATURE,
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfTemperature.CELSIUS,
             }),
             NumberSensorConv('tire_pressure_lf', prop='tirePressure.lfTirPrsVal', ratio=100).with_option({
-                'icon': 'mdi:car-tire-pressure',
+                'icon': 'mdi:car-tire-alert',
                 'device_class': SensorDeviceClass.PRESSURE,
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfPressure.KPA,
             }),
             NumberSensorConv('tire_pressure_rf', prop='tirePressure.rfTirPrVal', ratio=100).with_option({
-                'icon': 'mdi:car-tire-pressure',
+                'icon': 'mdi:car-tire-alert',
                 'device_class': SensorDeviceClass.PRESSURE,
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfPressure.KPA,
             }),
             NumberSensorConv('tire_pressure_lr', prop='tirePressure.lrTirPrVal', ratio=100).with_option({
-                'icon': 'mdi:car-tire-pressure',
+                'icon': 'mdi:car-tire-alert',
                 'device_class': SensorDeviceClass.PRESSURE,
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfPressure.KPA,
             }),
             NumberSensorConv('tire_pressure_rr', prop='tirePressure.rrTirPrVal', ratio=100).with_option({
-                'icon': 'mdi:car-tire-pressure',
+                'icon': 'mdi:car-tire-alert',
                 'device_class': SensorDeviceClass.PRESSURE,
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfPressure.KPA,
