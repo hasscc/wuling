@@ -16,6 +16,7 @@ from homeassistant.const import (
     CONF_CLIENT_SECRET,
     PERCENTAGE,
     UnitOfLength,
+    UnitOfPressure,
     UnitOfTemperature,
     UnitOfElectricPotential,
 )
@@ -23,6 +24,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, CoordinatorEntity
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.util.dt import now
 from homeassistant.exceptions import IntegrationError
 
 from .converters.base import *
@@ -83,6 +85,7 @@ class StateCoordinator(DataUpdateCoordinator):
             update_interval=timedelta(seconds=60),
         )
         self.entry = entry
+        self.data = {}
         self.extra = {}
         self.entities = {}
 
@@ -132,16 +135,19 @@ class StateCoordinator(DataUpdateCoordinator):
             NumberSensorConv('battery_temp', prop='carStatus.batAvgTemp').with_option({
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.TEMPERATURE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfTemperature.CELSIUS,
             }),
             NumberSensorConv('battery_voltage', prop='carStatus.voltage').with_option({
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.VOLTAGE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfElectricPotential.VOLT,
             }),
             NumberSensorConv('battery_health', prop='carStatus.batHealth').with_option({
                 'icon': 'mdi:battery-heart-variant',
                 'state_class': SensorStateClass.MEASUREMENT,
+                'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': PERCENTAGE,
             }),
             SensorConv('battery_status', prop='carStatus.batteryStatus').with_option({
@@ -150,6 +156,7 @@ class StateCoordinator(DataUpdateCoordinator):
             NumberSensorConv('small_battery_voltage', prop='carStatus.lowBatVol').with_option({
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.VOLTAGE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfElectricPotential.VOLT,
             }),
 
@@ -225,6 +232,48 @@ class StateCoordinator(DataUpdateCoordinator):
             ButtonConv('auth_start', press='async_auth_start').with_option({
                 'icon': 'mdi:engine',
             }),
+            ProblemConv('engine_power', prop='checkStatus.enginePow').with_option({
+                'icon': 'mdi:turbine',
+            }),
+            ProblemConv('engine_temp', prop='checkStatus.engineTemp').with_option({
+                'icon': 'mdi:coolant-temperatur',
+            }),
+            ProblemConv('abs', prop='checkStatus.absio', normal=0).with_option({
+                'icon': 'mdi:car-brake-anti-lock',
+            }),
+            ProblemConv('power_steering', prop='checkStatus.pwrStrIo', normal=0).with_option({
+                'icon': 'mdi:steering-wheel',
+            }),
+            SensorConv('tire_temp', prop='tirePressure.tirTemp').with_option({
+                'icon': 'mdi:car-tire',
+                'device_class': SensorDeviceClass.TEMPERATURE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+                'unit_of_measurement': UnitOfTemperature.CELSIUS,
+            }),
+            NumberSensorConv('tire_pressure_lf', prop='tirePressure.lfTirPrsVal', ratio=100).with_option({
+                'icon': 'mdi:car-tire-pressure',
+                'device_class': SensorDeviceClass.PRESSURE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+                'unit_of_measurement': UnitOfPressure.KPA,
+            }),
+            NumberSensorConv('tire_pressure_rf', prop='tirePressure.rfTirPrVal', ratio=100).with_option({
+                'icon': 'mdi:car-tire-pressure',
+                'device_class': SensorDeviceClass.PRESSURE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+                'unit_of_measurement': UnitOfPressure.KPA,
+            }),
+            NumberSensorConv('tire_pressure_lr', prop='tirePressure.lrTirPrVal', ratio=100).with_option({
+                'icon': 'mdi:car-tire-pressure',
+                'device_class': SensorDeviceClass.PRESSURE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+                'unit_of_measurement': UnitOfPressure.KPA,
+            }),
+            NumberSensorConv('tire_pressure_rr', prop='tirePressure.rrTirPrVal', ratio=100).with_option({
+                'icon': 'mdi:car-tire-pressure',
+                'device_class': SensorDeviceClass.PRESSURE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+                'unit_of_measurement': UnitOfPressure.KPA,
+            }),
         ]
 
     @property
@@ -282,14 +331,45 @@ class StateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         result = await self.async_request('userCarRelation/queryDefaultCarStatus')
         data = result.pop('data', None) or {}
+        self.data.update(data)
         self.extra = result
-        return data
+
+        minute = now().minute
+        if minute % 10 == 0 or 'checkStatus' not in self.data:
+            await self.async_update_check()
+            await self.async_update_tire()
+
+        return self.data
 
     async def async_auth_start(self):
         result = await self.async_request('car/control/ignition/authorize', data={
             'vin': self.vin,
         })
         data = result.get('data') or {}
+        return data
+
+    async def async_control_window(self, status=0):
+        result = await self.async_request('car/control/window', data={
+            'vin': self.vin,
+            'status': status,
+        })
+        data = result.get('data') or {}
+        return data
+
+    async def async_update_check(self):
+        result = await self.async_request('car/check/all', data={
+            'vin': self.vin,
+        })
+        data = result.pop('data', None) or {}
+        self.data['checkStatus'] = data
+        return data
+
+    async def async_update_tire(self):
+        result = await self.async_request('car/info/tire/pressure', data={
+            'vin': self.vin,
+        })
+        data = result.pop('data', None) or {}
+        self.data['tirePressure'] = data
         return data
 
     async def async_request(self, api: str, **kwargs):

@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Optional, TYPE_CHECKING
+from homeassistant.const import EntityCategory
+from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 
 if TYPE_CHECKING:
     from .. import StateCoordinator as Client
@@ -84,12 +86,28 @@ class BinarySensorConv(BoolConv):
     domain: Optional[str] = 'binary_sensor'
 
 @dataclass
+class ProblemConv(BinarySensorConv):
+    normal: Optional[Any] = '1'
+
+    def __post_init__(self):
+        if self.option is None:
+            self.option = {
+                'device_class': BinarySensorDeviceClass.PROBLEM,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+            }
+
+    def decode(self, client: "Client", payload: dict, value: Any):
+        payload[self.attr] = str(value) == self.normal
+
+@dataclass
 class NumberSensorConv(SensorConv):
+    ratio: Optional[float] = 1
     precision: Optional[int] = 1
 
     def decode(self, client: "Client", payload: dict, value: Any):
         try:
             val = float(f'{value}'.strip())
+            val = val * self.ratio
             val = round(val, self.precision)
         except (TypeError, ValueError):
             val = None

@@ -84,6 +84,21 @@
       },
       "gear_status": {
         "name": "档位"
+      },
+      "tire_temp": {
+        "name": "轮胎温度"
+      },
+      "tire_pressure_lf": {
+        "name": "胎压左前"
+      },
+      "tire_pressure_rf": {
+        "name": "胎压右前"
+      },
+      "tire_pressure_lr": {
+        "name": "胎压左后"
+      },
+      "tire_pressure_rr": {
+        "name": "胎压右后"
       }
     },
     "binary_sensor": {
@@ -101,6 +116,18 @@
       },
       "ac_status": {
         "name": "空调状态"
+      },
+      "engine_power": {
+        "name": "电机功率"
+      },
+      "engine_temp": {
+        "name": "电机温度"
+      },
+      "abs": {
+        "name": "ABS状态"
+      },
+      "power_steering": {
+        "name": "转向助力"
       }
     },
     "lock": {
