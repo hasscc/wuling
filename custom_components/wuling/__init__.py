@@ -193,6 +193,10 @@ class StateCoordinator(DataUpdateCoordinator):
             BinarySensorConv('charging', prop='carStatus.charging').with_option({
                 'device_class': BinarySensorDeviceClass.BATTERY_CHARGING,
             }),
+            BinarySensorConv('vecChrgingSts', prop='carStatus.vecChrgingSts').with_option({
+                'icon': 'mdi:power-plug',
+                'device_class': BinarySensorDeviceClass.PLUG,
+            }),
             MapSensorConv('key_status', prop='carStatus.keyStatus', map={
                 '0': '无钥匙',
                 '1': '已连接',
