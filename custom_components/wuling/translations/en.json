@@ -30,6 +30,9 @@
     "button": {
       "auth_start": {
         "name": "远程启动"
+      },
+      "search_car": {
+        "name": "双闪鸣笛"
       }
     },
     "sensor": {

@@ -223,6 +223,9 @@ class StateCoordinator(DataUpdateCoordinator):
             NumberSensorConv('current_temperature', prop='carStatus.invActTemp', parent='ac'),
             NumberSensorConv('target_temperature', prop='carStatus.accCntTemp', parent='ac'),
 
+            ButtonConv('search_car', press='async_search_car').with_option({
+                'icon': 'mdi:car-search',
+            }),
             Converter('location', Platform.DEVICE_TRACKER).with_option({
                 'icon': 'mdi:car',
             }),
@@ -349,6 +352,13 @@ class StateCoordinator(DataUpdateCoordinator):
 
     async def async_auth_start(self):
         result = await self.async_request('car/control/ignition/authorize', data={
+            'vin': self.vin,
+        })
+        data = result.get('data') or {}
+        return data
+
+    async def async_search_car(self):
+        result = await self.async_request('car/control/searchCar', data={
             'vin': self.vin,
         })
         data = result.get('data') or {}
