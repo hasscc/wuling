@@ -114,7 +114,7 @@
       "charging": {
         "name": "充电状态"
       },
-      "vecChrgingSts": {
+      "plugging": {
         "name": "充电枪状态"
       },
       "ac_status": {

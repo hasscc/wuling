@@ -193,7 +193,7 @@ class StateCoordinator(DataUpdateCoordinator):
             BinarySensorConv('charging', prop='carStatus.charging').with_option({
                 'device_class': BinarySensorDeviceClass.BATTERY_CHARGING,
             }),
-            BinarySensorConv('vecChrgingSts', prop='carStatus.vecChrgingSts').with_option({
+            BinarySensorConv('plugging', prop='carStatus.vecChrgingSts').with_option({
                 'icon': 'mdi:power-plug',
                 'device_class': BinarySensorDeviceClass.PLUG,
             }),
