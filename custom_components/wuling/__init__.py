@@ -205,10 +205,10 @@ class StateCoordinator(DataUpdateCoordinator):
                 'icon': 'mdi:key',
             }),
             MapSensorConv('gear_status', prop='carStatus.autoGearStatus', map={
-                '10': '泊车档',
-                '12': '前进档',
-                '13': '空档',
-                '14': '倒车档',
+                '10': 'P',
+                '12': 'D',
+                '13': 'N',
+                '14': 'R',
             }).with_option({
                 'icon': 'mdi:car-shift-pattern',
             }),
