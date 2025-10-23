@@ -70,15 +70,29 @@ class ClimateEntity(XEntity, BaseEntity):
         return ret
 
     async def async_set_hvac_mode(self, hvac_mode):
+        """Handle HVAC mode changes with fixed payloads for COOL/HEAT."""
         ret = None
         if hvac_mode == HVACMode.OFF:
             ret = await self.async_ac_control(accOnOff='0', status='0')
         elif hvac_mode == HVACMode.COOL:
-            ret = await self.async_ac_control(status='1')
+            ret = await self._fixed_request(
+                temperature="17",
+                status="1",
+                blowerLvl="7",
+                accOnOff="1",
+                duration="20"
+            )
         elif hvac_mode == HVACMode.HEAT:
-            ret = await self.async_ac_control(status='2')
-        else:
+            ret = await self._fixed_request(
+                temperature="33",
+                status="1",
+                blowerLvl="7",
+                accOnOff="1",
+                duration="20"
+            )
+        else:  # AUTO
             ret = await self.async_ac_control(accOnOff='1')
+
         if ret:
             self._attr_hvac_mode = hvac_mode
         return ret
@@ -89,12 +103,17 @@ class ClimateEntity(XEntity, BaseEntity):
             self._attr_fan_mode = fan_mode
 
     async def async_ac_control(self, **kwargs):
+        """Generic A/C control: use current entity state as fallback."""
         result = await self.coordinator.async_request('car/control/acc', json={
-            # 'vin': self.vin,
             'accOnOff': '1',
-            'duration': '10', # minutes
+            'duration': '10',
             'blowerLvl': str(self.fan_mode or 3),
             'temperature': str(self.target_temperature or 23),
             **kwargs,
         }) or {}
+        return result.get('result')
+
+    async def _fixed_request(self, **fixed_json):
+        """Send fixed JSON payload and return boolean result."""
+        result = await self.coordinator.async_request('car/control/acc', json=fixed_json) or {}
         return result.get('result')
