@@ -381,7 +381,7 @@ class StateCoordinator(DataUpdateCoordinator):
         return data
 
     async def async_update_tire(self):
-        result = await self.async_request('car/info/tire/pressure', data={
+        result = await self.async_request('car/info/tire/pressure', json={
             'vin': self.vin,
         })
         data = result.pop('data', None) or {}
