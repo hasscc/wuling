@@ -52,7 +52,7 @@ def generate_random_letters(length):
 
 sgmwnonce = generate_random_letters(10)
 sgmwappcode = 'sgmw_llb'
-sgmwappversion = '1656'
+sgmwappversion = '1691'
 sgmwsystem = 'android'
 sgmwsystemversion = '10'
 
@@ -398,8 +398,8 @@ class StateCoordinator(DataUpdateCoordinator):
             'User-Agent': 'okhttp/4.9.0',
             'channel': 'linglingbang',
             'platformNo': 'Android',
-            'appVersionCode': '1677',
-            'version': 'V8.2.10',
+            'appVersionCode': '1691',
+            'version': 'V8.2.17',
             'imei': 'a-c62b2f538bf34758',
             'imsi': 'unknown',
             'deviceModel': 'MI 8',
@@ -446,7 +446,7 @@ class StateCoordinator(DataUpdateCoordinator):
                     sgmwappversion +
                     sgmwsystem +
                     sgmwsystemversion)
-        return hashlib.md5(sign_str.encode()).hexdigest().lower()
+        return hashlib.sha256(sign_str.encode()).hexdigest().lower()
 
     def decode(self, data: dict) -> dict:
         """Decode props for HASS."""
