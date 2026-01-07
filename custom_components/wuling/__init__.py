@@ -61,17 +61,25 @@ sgmwsystemversion = '10'
 
 class NonZeroNumberSensorConv(NumberSensorConv):
     def decode(self, coordinator, payload, value):
-        if value is None or value == 0:
-            # 使用上次非零值
-            if self.attr in coordinator._last_nonzero_values:
-                value = coordinator._last_nonzero_values[self.attr]
-            else:
-                return  # 无历史值，跳过本次更新
-        else:
-            # 更新缓存
-            coordinator._last_nonzero_values[self.attr] = value
-
-        super().decode(coordinator, payload, value)
+        if value is None or value == "" or value == "0":
+            entity_id = f"sensor.{coordinator.vin_sort}_{self.attr}"
+            state_obj = coordinator.hass.states.get(entity_id)
+            if state_obj and state_obj.state not in ("unknown", "unavailable", "none", "0", ""):
+                try:
+                    restored = float(state_obj.state)
+                    payload[self.attr] = restored
+                    return
+                except (ValueError, TypeError):
+                    pass
+            return
+        try:
+            num_val = float(value)
+            if num_val <= 0:
+                return
+        except (ValueError, TypeError):
+            return
+        final_value = num_val / self.ratio if hasattr(self, 'ratio') and self.ratio else num_val
+        payload[self.attr] = final_value
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
@@ -105,7 +113,7 @@ class StateCoordinator(DataUpdateCoordinator):
         self.data = {}
         self.extra = {}
         self.entities = {}
-        self._last_nonzero_values = {}  # ✅ 关键：初始化非零值缓存字典
+        self._last_nonzero_values = {}
 
         from homeassistant.components.sensor import SensorStateClass, SensorDeviceClass
         from homeassistant.components.binary_sensor import BinarySensorDeviceClass
@@ -139,10 +147,9 @@ class StateCoordinator(DataUpdateCoordinator):
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
-            # ✅ 修复 total_hev_mileage：使用 NonZero + ratio=100 + TOTAL_INCREASING
-            NonZeroNumberSensorConv('total_hev_mileage', prop='carStatus.hybridMileage', ratio=100).with_option({
+            NonZeroNumberSensorConv('total_hev_mileage', prop='carStatus.hybridMileage').with_option({
                 'icon': 'mdi:car-electric',
-                'state_class': SensorStateClass.TOTAL_INCREASING,  # 更合理
+                'state_class': SensorStateClass.TOTAL_INCREASING,
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
@@ -467,7 +474,6 @@ class StateCoordinator(DataUpdateCoordinator):
         return hashlib.sha256(sign_str.encode()).hexdigest().lower()
 
     def decode(self, data: dict) -> dict:
-        """Decode props for HASS."""
         payload = {}
         for conv in self.converters:
             prop = conv.prop or conv.attr
@@ -478,7 +484,6 @@ class StateCoordinator(DataUpdateCoordinator):
         return payload
 
     def push_state(self, value: dict):
-        """Push new state to Hass entities."""
         if not value:
             return
         attrs = value.keys()
@@ -538,7 +543,6 @@ class XEntity(CoordinatorEntity):
         return self.coordinator.vin
 
     async def async_added_to_hass(self):
-        """Run when entity about to be added to hass."""
         await super().async_added_to_hass()
         if hasattr(self, 'async_get_last_state'):
             state: State = await self.async_get_last_state()
@@ -550,12 +554,10 @@ class XEntity(CoordinatorEntity):
 
     @callback
     def async_restore_last_state(self, state: str, attrs: dict):
-        """Restore previous state."""
         self._attr_state = state
 
     @callback
     def async_set_state(self, data: dict):
-        """Handle state update from gateway."""
         if hasattr(self.conv, 'option'):
             self._option.update(self.conv.option or {})
         if self.attr in data:
@@ -565,8 +567,6 @@ class XEntity(CoordinatorEntity):
             if k not in data:
                 continue
             self._attr_extra_state_attributes[k] = data[k]
-        # 可选：注释掉下面这行以减少日志
-        # _LOGGER.info('%s: State changed: %s', self.entity_id, data)
 
     def update(self):
         payload = self.coordinator.decode(self.coordinator.data)
@@ -574,5 +574,4 @@ class XEntity(CoordinatorEntity):
 
     @callback
     def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
         self.update()
