@@ -27,6 +27,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Coor
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util.dt import now
 from homeassistant.exceptions import IntegrationError
+from homeassistant.helpers.entity import EntityCategory
 
 from .converters.base import *
 
@@ -57,12 +58,22 @@ sgmwappversion = '1691'
 sgmwsystem = 'android'
 sgmwsystemversion = '10'
 
+
 class NonZeroNumberSensorConv(NumberSensorConv):
     def decode(self, coordinator, payload, value):
-        # 如果值为 0 或 None，不写入 payload（即忽略）
         if value is None or value == 0:
-            return
+            # 使用上次非零值
+            if self.attr in coordinator._last_nonzero_values:
+                value = coordinator._last_nonzero_values[self.attr]
+            else:
+                return  # 无历史值，跳过本次更新
+        else:
+            # 更新缓存
+            coordinator._last_nonzero_values[self.attr] = value
+
         super().decode(coordinator, payload, value)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data.setdefault(entry.entry_id, {})
     hass.data[entry.entry_id].setdefault('entities', {})
@@ -94,6 +105,7 @@ class StateCoordinator(DataUpdateCoordinator):
         self.data = {}
         self.extra = {}
         self.entities = {}
+        self._last_nonzero_values = {}  # ✅ 关键：初始化非零值缓存字典
 
         from homeassistant.components.sensor import SensorStateClass, SensorDeviceClass
         from homeassistant.components.binary_sensor import BinarySensorDeviceClass
@@ -105,7 +117,7 @@ class StateCoordinator(DataUpdateCoordinator):
             }),
             NumberSensorConv('total_mileage', prop='carStatus.mileage').with_option({
                 'icon': 'mdi:counter',
-                'state_class': SensorStateClass.TOTAL,
+                'state_class': SensorStateClass.TOTAL_INCREASING,
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
@@ -127,9 +139,10 @@ class StateCoordinator(DataUpdateCoordinator):
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
-            NonZeroNumberSensorConv('total_hev_mileage', prop='carStatus.hybridMileage').with_option({
-                'icon': 'mdi:water',
-                'state_class': SensorStateClass.MEASUREMENT,
+            # ✅ 修复 total_hev_mileage：使用 NonZero + ratio=100 + TOTAL_INCREASING
+            NonZeroNumberSensorConv('total_hev_mileage', prop='carStatus.hybridMileage', ratio=100).with_option({
+                'icon': 'mdi:car-electric',
+                'state_class': SensorStateClass.TOTAL_INCREASING,  # 更合理
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
@@ -442,7 +455,6 @@ class StateCoordinator(DataUpdateCoordinator):
         return result
 
     def get_sign(self, timestamp, nonce):
-        # 计算签名
         sign_str = (self.access_token +
                     str(timestamp) +
                     nonce +
@@ -553,7 +565,8 @@ class XEntity(CoordinatorEntity):
             if k not in data:
                 continue
             self._attr_extra_state_attributes[k] = data[k]
-        _LOGGER.info('%s: State changed: %s', self.entity_id, data)
+        # 可选：注释掉下面这行以减少日志
+        # _LOGGER.info('%s: State changed: %s', self.entity_id, data)
 
     def update(self):
         payload = self.coordinator.decode(self.coordinator.data)
