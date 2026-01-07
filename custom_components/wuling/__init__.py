@@ -8,6 +8,7 @@ import json
 import random
 import string
 
+from .converters.base import NumberSensorConv, get_value
 from homeassistant.core import HomeAssistant, State, ServiceCall, SupportsResponse, callback
 from homeassistant.const import (
     Platform,
@@ -56,7 +57,12 @@ sgmwappversion = '1691'
 sgmwsystem = 'android'
 sgmwsystemversion = '10'
 
-
+class NonZeroNumberSensorConv(NumberSensorConv):
+    def decode(self, coordinator, payload, value):
+        # 如果值为 0 或 None，不写入 payload（即忽略）
+        if value is None or value == 0:
+            return
+        super().decode(coordinator, payload, value)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data.setdefault(entry.entry_id, {})
     hass.data[entry.entry_id].setdefault('entities', {})
@@ -121,7 +127,7 @@ class StateCoordinator(DataUpdateCoordinator):
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
-            NumberSensorConv('total_hev_mileage', prop='carStatus.hybridMileage').with_option({
+            NonZeroNumberSensorConv('total_hev_mileage', prop='carStatus.hybridMileage').with_option({
                 'icon': 'mdi:water',
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.DISTANCE,
