@@ -496,19 +496,8 @@ class StateCoordinator(DataUpdateCoordinator):
         except (TypeError, ValueError) as exc:
             _LOGGER.error('Response from %s error: %s', api, [exc, text])
             return {}
-        # Temporary debug: log API response (avoid logging sensitive headers)
-        try:
-            safe_kwargs = dict(kwargs)
-            if 'headers' in safe_kwargs and isinstance(safe_kwargs['headers'], dict):
-                safe_headers = safe_kwargs['headers'].copy()
-                for k in ('sgmwclientsecret', 'sgmwaccesstoken', 'accessToken', 'Authorization'):
-                    if k in safe_headers:
-                        safe_headers[k] = '***REDACTED***'
-                safe_kwargs['headers'] = safe_headers
-        except Exception:
-            safe_kwargs = {'headers': '***error_building_safe_kwargs***'}
+        _LOGGER.debug('Request %s result: %s', api, [result, kwargs])
         _LOGGER.debug('Request %s result: %s', api, result)
-        _LOGGER.debug('Request %s kwargs (safe): %s', api, safe_kwargs)
         return result
 
     def get_sign(self, timestamp, nonce):
