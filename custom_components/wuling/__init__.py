@@ -497,7 +497,6 @@ class StateCoordinator(DataUpdateCoordinator):
             _LOGGER.error('Response from %s error: %s', api, [exc, text])
             return {}
         _LOGGER.debug('Request %s result: %s', api, [result, kwargs])
-        _LOGGER.debug('Request %s result: %s', api, result)
         return result
 
     def get_sign(self, timestamp, nonce):
