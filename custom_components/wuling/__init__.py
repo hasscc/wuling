@@ -415,21 +415,21 @@ class StateCoordinator(DataUpdateCoordinator):
         return self.data
 
     async def async_auth_start(self):
-        result = await self.async_request('car/control/ignition/authorize', data={
+        result = await self.async_request('car/control/ignition/authorize', json={
             'vin': self.vin,
         })
         data = result.get('data') or {}
         return data
 
     async def async_search_car(self):
-        result = await self.async_request('car/control/searchCar', data={
+        result = await self.async_request('car/control/searchCar', json={
             'vin': self.vin,
         })
         data = result.get('data') or {}
         return data
 
     async def async_control_window(self, status=0):
-        result = await self.async_request('car/control/window', data={
+        result = await self.async_request('car/control/window', json={
             'vin': self.vin,
             'status': status,
         })
