@@ -415,21 +415,21 @@ class StateCoordinator(DataUpdateCoordinator):
         return self.data
 
     async def async_auth_start(self):
-        result = await self.async_request('car/control/ignition/authorize', data={
+        result = await self.async_request('car/control/ignition/authorize', json={
             'vin': self.vin,
         })
         data = result.get('data') or {}
         return data
 
     async def async_search_car(self):
-        result = await self.async_request('car/control/searchCar', data={
+        result = await self.async_request('car/control/searchCar', json={
             'vin': self.vin,
         })
         data = result.get('data') or {}
         return data
 
     async def async_control_window(self, status=0):
-        result = await self.async_request('car/control/window', data={
+        result = await self.async_request('car/control/window', json={
             'vin': self.vin,
             'status': status,
         })
@@ -496,7 +496,19 @@ class StateCoordinator(DataUpdateCoordinator):
         except (TypeError, ValueError) as exc:
             _LOGGER.error('Response from %s error: %s', api, [exc, text])
             return {}
-        _LOGGER.debug('Request %s result: %s', api, [result, kwargs])
+        # Temporary debug: log API response (avoid logging sensitive headers)
+        try:
+            safe_kwargs = dict(kwargs)
+            if 'headers' in safe_kwargs and isinstance(safe_kwargs['headers'], dict):
+                safe_headers = safe_kwargs['headers'].copy()
+                for k in ('sgmwclientsecret', 'sgmwaccesstoken', 'accessToken', 'Authorization'):
+                    if k in safe_headers:
+                        safe_headers[k] = '***REDACTED***'
+                safe_kwargs['headers'] = safe_headers
+        except Exception:
+            safe_kwargs = {'headers': '***error_building_safe_kwargs***'}
+        _LOGGER.debug('Request %s result: %s', api, result)
+        _LOGGER.debug('Request %s kwargs (safe): %s', api, safe_kwargs)
         return result
 
     def get_sign(self, timestamp, nonce):
