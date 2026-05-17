@@ -277,6 +277,38 @@ class StateCoordinator(DataUpdateCoordinator):
             BinarySensorConv('window3_status', prop='carStatus.window3OpenStatus', parent='window_status'),
             BinarySensorConv('window4_status', prop='carStatus.window4OpenStatus', parent='window_status'),
 
+            BinarySensorConv('leftTurnLight', prop='carStatus.leftTurnLight').with_option({
+                'icon': 'mdi:car-parking-lights',  
+                'device_class': BinarySensorDeviceClass.LIGHT,  
+                'state_class': SensorStateClass.MEASUREMENT,  
+            }),
+            BinarySensorConv('rightTurnLight', prop='carStatus.rightTurnLight').with_option({
+                'icon': 'mdi:car-parking-lights',
+                'device_class': BinarySensorDeviceClass.LIGHT,
+            }),
+            BinarySensorConv('rearFogLight', prop='carStatus.rearFogLight').with_option({
+                'icon': 'mdi:car-parking-lights',
+                'device_class': BinarySensorDeviceClass.LIGHT,
+                'parent': 'frontFogLight',  
+            }),
+            BinarySensorConv('frontFogLight', prop='carStatus.frontFogLight').with_option({
+                'icon': 'mdi:car-parking-lights',
+                'device_class': BinarySensorDeviceClass.LIGHT,
+            }),
+            BinarySensorConv('dipHeadLight', prop='carStatus.dipHeadLight').with_option({
+                'icon': 'mdi:car-parking-lights',  
+                'device_class': BinarySensorDeviceClass.LIGHT,
+                'parent': 'lowBeamLight',  
+            }),
+            BinarySensorConv('lowBeamLight', prop='carStatus.lowBeamLight').with_option({
+                'icon': 'mdi:car-parking-lights',
+                'device_class': BinarySensorDeviceClass.LIGHT,
+            }),
+            BinarySensorConv('positionLight', prop='carStatus.positionLight').with_option({
+                'icon': 'mdi:car-parking-lights',
+                'device_class': BinarySensorDeviceClass.LIGHT,
+            }),
+            
             BinarySensorConv('charging', prop='carStatus.charging').with_option({
                 'device_class': BinarySensorDeviceClass.BATTERY_CHARGING,
             }),
