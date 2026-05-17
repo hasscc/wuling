@@ -142,6 +142,27 @@
       "window_status": {
         "name": "车窗状态"
       },
+      "leftTurnLight": {
+        "name": "左转灯"
+      },
+      "rightTurnLight": {
+        "name": "右转灯"
+      },
+      "rearFogLight": {
+        "name": "rearFogLight"
+      },
+      "frontFogLight": {
+        "name": "frontFogLight"
+      },
+      "dipHeadLight": {
+        "name": "dipHeadLight"
+      },
+      "lowBeamLight": {
+        "name": "lowBeamLight"
+      },
+      "positionLight": {
+        "name": "positionLight"
+      },      
       "charging": {
         "name": "充电状态"
       },
