@@ -100,6 +100,19 @@ class ChargingPowerSensorConv(NumberSensorConv):
         payload[self.attr] = 0.0
 
 
+class SteeringAngleSensorConv(NumberSensorConv):
+    def decode(self, client, payload, value):
+        try:
+            raw_value = float(value)
+            if 0 <= raw_value <= 2048:
+                payload[self.attr] = round(raw_value, 3)
+            elif 2048 < raw_value < 4096:
+                payload[self.attr] = round(raw_value - 4096, 3)
+            else:
+                payload[self.attr] = 0.0
+        except (ValueError, TypeError):
+            payload[self.attr] = 0.0
+
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data.setdefault(entry.entry_id, {})
@@ -421,6 +434,11 @@ class StateCoordinator(DataUpdateCoordinator):
                 'device_class': SensorDeviceClass.PRESSURE,
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfPressure.KPA,
+            }),
+            SteeringAngleSensorConv('strWhAng', prop='carStatus.strWhAng').with_option({
+                'icon': 'mdi:steering',  
+                'state_class': SensorStateClass.MEASUREMENT,  
+                'device_class': None,      
             }),
         ]
 
