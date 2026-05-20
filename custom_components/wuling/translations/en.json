@@ -95,6 +95,9 @@
       "small_battery_voltage": {
         "name": "电瓶电压"
       },
+      "strWhAng": {
+        "name": "转向角度"
+      },
       "door_status": {
         "name": "车门状态"
       },
