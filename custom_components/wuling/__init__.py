@@ -185,7 +185,7 @@ class StateCoordinator(DataUpdateCoordinator):
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
-            NumberSensorConv('veh_Spd_AvgDrvn', prop='carStatus.vehSpdAvgDrvn').with_option({
+            NumberSensorConv('veh_Spd_AvgDrvn', prop='carStatus.vehSpdAvgDrvn', precision=1).with_option({
                 'icon': 'mdi:speedometer',
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class':SensorDeviceClass.SPEED,
@@ -232,7 +232,7 @@ class StateCoordinator(DataUpdateCoordinator):
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfTemperature.CELSIUS,
             }),
-            NumberSensorConv('battery_voltage', prop='carStatus.voltage').with_option({
+            NumberSensorConv('battery_voltage', prop='carStatus.voltage', precision=1).with_option({
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.VOLTAGE,
                 'entity_category': EntityCategory.DIAGNOSTIC,
@@ -253,7 +253,7 @@ class StateCoordinator(DataUpdateCoordinator):
             SensorConv('battery_status', prop='carStatus.batteryStatus').with_option({
                 'icon': 'mdi:battery-unknown',
             }),
-            NumberSensorConv('small_battery_voltage', prop='carStatus.lowBatVol').with_option({
+            NumberSensorConv('small_battery_voltage', prop='carStatus.lowBatVol', precision=2).with_option({
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.VOLTAGE,
                 'entity_category': EntityCategory.DIAGNOSTIC,
@@ -435,7 +435,7 @@ class StateCoordinator(DataUpdateCoordinator):
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfPressure.KPA,
             }),
-            SteeringAngleSensorConv('strWhAng', prop='carStatus.strWhAng').with_option({
+            SteeringAngleSensorConv('strWhAng', prop='carStatus.strWhAng', precision=3).with_option({
                 'icon': 'mdi:steering',  
                 'state_class': SensorStateClass.MEASUREMENT,  
                 'device_class': None,      
