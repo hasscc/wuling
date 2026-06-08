@@ -113,6 +113,17 @@ class SteeringAngleSensorConv(NumberSensorConv):
         except (ValueError, TypeError):
             payload[self.attr] = 0.0
 
+class MinValidVoltageSensorConv(NumberSensorConv):
+    def decode(self, coordinator, payload, value):
+        if value is None or value == "":
+            return
+        try:
+            num_val = float(value)
+            if num_val >= 0:
+                final_value = num_val / self.ratio if hasattr(self, 'ratio') and self.ratio else num_val
+                payload[self.attr] = final_value
+        except (ValueError, TypeError):
+            pass
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data.setdefault(entry.entry_id, {})
@@ -232,7 +243,7 @@ class StateCoordinator(DataUpdateCoordinator):
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfTemperature.CELSIUS,
             }),
-            NumberSensorConv('battery_voltage', prop='carStatus.voltage', precision=1).with_option({
+            MinValidVoltageSensorConv('battery_voltage', prop='carStatus.voltage', precision=3).with_option({
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.VOLTAGE,
                 'entity_category': EntityCategory.DIAGNOSTIC,
