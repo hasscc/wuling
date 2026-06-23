@@ -42,6 +42,10 @@
       "total_mileage": {
         "name": "总里程"
       },
+      "veh_Spd_AvgDrvn": {
+        "name": "平均车速",
+        "unit": "km/h"
+      },
       "left_mileage": {
         "name": "纯电续航"
       },
@@ -61,17 +65,38 @@
       "battery_temp": {
         "name": "电池温度"
       },
+      "battery_temp_min": {
+        "name": "电池单体最低温度"
+      },
+      "battery_temp_max": {
+        "name": "电池单体最高温度"
+      },
+      "invActTemp": {
+        "name": "逆变器温度"
+      },
+      "obc_temp": {
+        "name": "交流充电机温度"
+      },
+      "cdj_temp": {
+        "name": "充电机插口温度"
+      },
       "battery_voltage": {
         "name": "电池电压"
       },
       "battery_health": {
         "name": "电池健康"
       },
+      "battery_SOH": {
+        "name": "电池SOH"
+      },
       "battery_status": {
         "name": "电池状态"
       },
       "small_battery_voltage": {
         "name": "电瓶电压"
+      },
+      "strWhAng": {
+        "name": "方向盘角度"
       },
       "door_status": {
         "name": "车门状态"
@@ -120,6 +145,27 @@
       "window_status": {
         "name": "车窗状态"
       },
+      "leftTurnLight": {
+        "name": "左转灯"
+      },
+      "rightTurnLight": {
+        "name": "右转灯"
+      },
+      "rearFogLight": {
+        "name": "后雾灯"
+      },
+      "frontFogLight": {
+        "name": "前雾灯"
+      },
+      "dipHeadLight": {
+        "name": "远光灯"
+      },
+      "lowBeamLight": {
+        "name": "车头灯"
+      },
+      "positionLight": {
+        "name": "示廓灯"
+      },  
       "charging": {
         "name": "充电状态"
       },

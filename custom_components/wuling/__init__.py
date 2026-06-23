@@ -23,6 +23,7 @@ from homeassistant.const import (
     UnitOfElectricCurrent,
     UnitOfTime,
     UnitOfPower,
+    UnitOfSpeed,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity import DeviceInfo
@@ -99,6 +100,30 @@ class ChargingPowerSensorConv(NumberSensorConv):
         payload[self.attr] = 0.0
 
 
+class SteeringAngleSensorConv(NumberSensorConv):
+    def decode(self, client, payload, value):
+        try:
+            raw_value = float(value)
+            if 0 <= raw_value <= 2048:
+                payload[self.attr] = round(raw_value, 3)
+            elif 2048 < raw_value < 4096:
+                payload[self.attr] = round(raw_value - 4096, 3)
+            else:
+                payload[self.attr] = 0.0
+        except (ValueError, TypeError):
+            payload[self.attr] = 0.0
+
+class MinValidVoltageSensorConv(NumberSensorConv):
+    def decode(self, coordinator, payload, value):
+        if value is None or value == "":
+            return
+        try:
+            num_val = float(value)
+            if num_val >= 0:
+                final_value = num_val / self.ratio if hasattr(self, 'ratio') and self.ratio else num_val
+                payload[self.attr] = final_value
+        except (ValueError, TypeError):
+            pass
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data.setdefault(entry.entry_id, {})
@@ -171,6 +196,12 @@ class StateCoordinator(DataUpdateCoordinator):
                 'device_class': SensorDeviceClass.DISTANCE,
                 'unit_of_measurement': UnitOfLength.KILOMETERS,
             }),
+            NumberSensorConv('veh_Spd_AvgDrvn', prop='carStatus.vehSpdAvgDrvn', precision=1).with_option({
+                'icon': 'mdi:speedometer',
+                'state_class': SensorStateClass.MEASUREMENT,
+                'device_class':SensorDeviceClass.SPEED,
+                'unit_of_measurement': UnitOfSpeed.KILOMETERS_PER_HOUR,
+            }),
             NumberSensorConv('oil_level', prop='carStatus.leftFuel').with_option({
                 'icon': 'mdi:water-percent',
                 'state_class': SensorStateClass.MEASUREMENT,
@@ -182,7 +213,37 @@ class StateCoordinator(DataUpdateCoordinator):
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfTemperature.CELSIUS,
             }),
-            NumberSensorConv('battery_voltage', prop='carStatus.voltage').with_option({
+            NumberSensorConv('battery_temp_min', prop='carStatus.batMinTemp').with_option({
+                'state_class': SensorStateClass.MEASUREMENT,
+                'device_class': SensorDeviceClass.TEMPERATURE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+                'unit_of_measurement': UnitOfTemperature.CELSIUS,
+            }),
+            NumberSensorConv('battery_temp_max', prop='carStatus.batMaxTemp').with_option({
+                'state_class': SensorStateClass.MEASUREMENT,
+                'device_class': SensorDeviceClass.TEMPERATURE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+                'unit_of_measurement': UnitOfTemperature.CELSIUS,
+            }),
+            NumberSensorConv('invActTemp', prop='carStatus.invActTemp').with_option({
+                'state_class': SensorStateClass.MEASUREMENT,
+                'device_class': SensorDeviceClass.TEMPERATURE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+                'unit_of_measurement': UnitOfTemperature.CELSIUS,
+            }),
+            NumberSensorConv('cdj_temp', prop='carStatus.cdjTemp').with_option({
+                'state_class': SensorStateClass.MEASUREMENT,
+                'device_class': SensorDeviceClass.TEMPERATURE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+                'unit_of_measurement': UnitOfTemperature.CELSIUS,
+            }),
+            NumberSensorConv('obc_temp', prop='carStatus.obcTemp').with_option({
+                'state_class': SensorStateClass.MEASUREMENT,
+                'device_class': SensorDeviceClass.TEMPERATURE,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+                'unit_of_measurement': UnitOfTemperature.CELSIUS,
+            }),
+            MinValidVoltageSensorConv('battery_voltage', prop='carStatus.voltage', precision=3).with_option({
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.VOLTAGE,
                 'entity_category': EntityCategory.DIAGNOSTIC,
@@ -194,10 +255,16 @@ class StateCoordinator(DataUpdateCoordinator):
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': PERCENTAGE,
             }),
+            NumberSensorConv('battery_SOH', prop='carStatus.batSOH').with_option({
+                'icon': 'mdi:battery-heart',
+                'state_class': SensorStateClass.MEASUREMENT,
+                'entity_category': EntityCategory.DIAGNOSTIC,
+                'unit_of_measurement': PERCENTAGE,
+            }),
             SensorConv('battery_status', prop='carStatus.batteryStatus').with_option({
                 'icon': 'mdi:battery-unknown',
             }),
-            NumberSensorConv('small_battery_voltage', prop='carStatus.lowBatVol').with_option({
+            NumberSensorConv('small_battery_voltage', prop='carStatus.lowBatVol', precision=2).with_option({
                 'state_class': SensorStateClass.MEASUREMENT,
                 'device_class': SensorDeviceClass.VOLTAGE,
                 'entity_category': EntityCategory.DIAGNOSTIC,
@@ -234,6 +301,38 @@ class StateCoordinator(DataUpdateCoordinator):
             BinarySensorConv('window3_status', prop='carStatus.window3OpenStatus', parent='window_status'),
             BinarySensorConv('window4_status', prop='carStatus.window4OpenStatus', parent='window_status'),
 
+            BinarySensorConv('leftTurnLight', prop='carStatus.leftTurnLight').with_option({
+                'icon': 'mdi:car-parking-lights',  
+                'device_class': BinarySensorDeviceClass.LIGHT,  
+                'state_class': SensorStateClass.MEASUREMENT,  
+            }),
+            BinarySensorConv('rightTurnLight', prop='carStatus.rightTurnLight').with_option({
+                'icon': 'mdi:car-parking-lights',
+                'device_class': BinarySensorDeviceClass.LIGHT,
+            }),
+            BinarySensorConv('rearFogLight', prop='carStatus.rearFogLight').with_option({
+                'icon': 'mdi:car-parking-lights',
+                'device_class': BinarySensorDeviceClass.LIGHT,
+                'parent': 'frontFogLight',  
+            }),
+            BinarySensorConv('frontFogLight', prop='carStatus.frontFogLight').with_option({
+                'icon': 'mdi:car-parking-lights',
+                'device_class': BinarySensorDeviceClass.LIGHT,
+            }),
+            BinarySensorConv('dipHeadLight', prop='carStatus.dipHeadLight').with_option({
+                'icon': 'mdi:car-parking-lights',  
+                'device_class': BinarySensorDeviceClass.LIGHT,
+                'parent': 'lowBeamLight',  
+            }),
+            BinarySensorConv('lowBeamLight', prop='carStatus.lowBeamLight').with_option({
+                'icon': 'mdi:car-parking-lights',
+                'device_class': BinarySensorDeviceClass.LIGHT,
+            }),
+            BinarySensorConv('positionLight', prop='carStatus.positionLight').with_option({
+                'icon': 'mdi:car-parking-lights',
+                'device_class': BinarySensorDeviceClass.LIGHT,
+            }),
+            
             BinarySensorConv('charging', prop='carStatus.charging').with_option({
                 'device_class': BinarySensorDeviceClass.BATTERY_CHARGING,
             }),
@@ -347,6 +446,11 @@ class StateCoordinator(DataUpdateCoordinator):
                 'entity_category': EntityCategory.DIAGNOSTIC,
                 'unit_of_measurement': UnitOfPressure.KPA,
             }),
+            SteeringAngleSensorConv('strWhAng', prop='carStatus.strWhAng', precision=3).with_option({
+                'icon': 'mdi:steering',  
+                'state_class': SensorStateClass.MEASUREMENT,  
+                'device_class': None,      
+            }),
         ]
 
     @property
@@ -388,7 +492,9 @@ class StateCoordinator(DataUpdateCoordinator):
     def model(self):
         name = self.car_info.get('carTypeName', '')
         model = self.car_info.get('model', '')
-        return f'{name} {model}'.strip()
+        level = self.car_info.get('level', '')
+        colorName = self.car_info.get('colorName', '')
+        return f'{name} {model} {level} {colorName}'.strip()
 
     async def update_from_service(self, call: ServiceCall):
         data = call.data
